@@ -1,0 +1,89 @@
+@startuml Tarea 4 pilares
+
+enum TipoNotificacion {
+    EMAIL
+    WEBHOOK
+    SMS
+}
+
+enum NivelAlerta {
+    NORMAL
+    ADVERTENCIA
+    CRITICO
+}
+
+
+abstract class Sensor {
+    -id: str
+    -ventana: int
+    -calibracion: float
+    -buffer: list
+    +leer: float
+    +promedio(): float
+}
+
+class SensorTemperatura {
+    -umbral: float
+    +en_alerta(): bool
+}
+
+class SensorVibracion {
+    -rms_umbral: float
+    +en_alerta(): bool
+    +calcular_rms(): float
+}
+
+class SensorPresion {
+    -presion_max: float
+    -presion_min: float
+    +en_alerta(): bool
+}
+
+class NotificadorEmail {
+    -destinatario: str
+    +enviar(mensaje: str): void
+}
+
+class NotificadorWebhook {
+    -url: str
+    +enviar(mensaje: str): void
+}
+
+class NotificadorSMS {
+    -telefono: str
+    +enviar(mensaje: str): void
+}
+
+class Alerta {
+    -sensor_id: str
+    -mensaje: str
+    -hora: datetime
+    +es_critica(): bool
+}
+
+class GestorAlertas {
+    -historial: list
+    +evaluar_y_notificar(): void
+}
+
+' relaciones de herencai
+Sensor <|-- SensorTemperatura
+Sensor <|-- SensorVibracion  
+Sensor <|-- SensorPresion
+
+' relaciones de composition
+GestorAlertas *-- Alerta  
+' relaciones de Aggregation
+GestorAlertas o-- Sensor
+GestorAlertas o-- NotificadorEmail
+GestorAlertas o-- NotificadorWebhook
+GestorAlertas o-- NotificadorSMS
+
+ ' relacion de dependecia
+ NivelAlerta --> Alerta
+ TipoNotificacion --> NotificadorEmail
+ TipoNotificacion --> NotificadorSMS
+ TipoNotificacion --> NotificadorWebhook
+
+
+@enduml
